@@ -1,0 +1,59 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use Perinci::CmdLine::Any;
+
+Perinci::CmdLine::Any->new(
+    url => '/App/podsel/podsel',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+To select the commands:
+
+ % podsel foo.pod '.Command'
+
+To print only the head* commands:
+
+ % podsel foo.pod '.Command[command =~ "head"]'
+
+To dump Pod document tree (C<--root> select the root node, C<--dump> dumps the
+content):
+
+ % podsel foo.pod --root --dump
+
+
+=head1 DESCRIPTION
+
+This utility uses CSel to select against a tree of L<Pod::Elemental> nodes,
+constructed from a Perl POD document.
+
+About the tree: the root node is Pod::Elemental::Document object. The other
+nodes are Pod::Elemental::Element::* nodes. This utility allows you to omit the
+C<Pod::Elemental::Element::Generic>, C<Pod::Elemental::Element> or
+C<Pod::Elemental::> prefix, so to select a command you can use:
+
+ .Element::Generic::Command
+
+or just:
+
+ .Command
+
+
+=head1 SEE ALSO
+
+L<Data::CSel>
+
+L<Pod::Elemental>
+
+Other utilities that use CSel against various data: L<ddsel>, L<jsonsel>,
+L<orgsel>, L<podsel>, L<htmlsel>, L<yamlsel>.
