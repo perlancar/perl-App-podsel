@@ -1,3 +1,8 @@
+0.005   2019-12-14  Released-By: PERLANCAR; Urgency: medium
+
+	- Tweak/fix nesting with Pod::Elemental::Transformer::Nester.
+
+
 0.004   2019-12-14  Released-By: PERLANCAR; Urgency: medium
 
 	- Add option: --transform.
