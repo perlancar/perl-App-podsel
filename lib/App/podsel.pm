@@ -39,9 +39,51 @@ $SPEC{podsel} = {
     summary => 'Select Pod::Elemental nodes using CSel syntax',
     args => {
         %App::CSelUtils::foosel_args_common,
+        transforms => {
+            'x.name.is_plural' => 1,
+            'x.name.singular' => 'transform',
+            summary => "Apply one or more Pod::Elemental::Transform's",
+            schema => [
+                'array*', {
+                    of=>['str*', in=>['Pod5','Nester']],
+                    #'x.perl.coerce_rules' => ['From_str::comma_sep'], # BUG: Perinci::Sub::GetArgs::Argv decides this must be --transform + --transforms-json anyway?
+                }],
+            description => <<'_',
+
+By default, the "stock" Pod::Elemental parser will be generic and not very
+helpful in parsing your typical POD (Perl 5 variant) documents. You usually want
+to add:
+
+    --transform Pod5 --transform Nester
+
+The following are available transforms:
+
+* Pod5
+
+Equivalent to this:
+
+    Pod::Elemental::Transformer::Pod5->new->transform_node($tree);
+
+* Nester
+
+Equivalent to this
+
+    my $nester = Pod::Elemental::Transformer::Nester->new({
+        top_selector      => Pod::Elemental::Selectors::s_command('head1'),
+        content_selectors => [
+            Pod::Elemental::Selectors::s_command([ qw(head2 head3 head4) ]),
+            Pod::Elemental::Selectors::s_flat(),
+        ],
+    });
+    $nester->new->transform_node($tree);
+
+_
+        },
     },
 };
 sub podsel {
+    my %podsel_args = @_;
+
     App::CSelUtils::foosel(
         @_,
         code_read_tree => sub {
@@ -57,6 +99,25 @@ sub podsel {
             }
             require Pod::Elemental;
             my $doc = Pod::Elemental->read_string($src);
+
+            for my $transform (@{ $podsel_args{transforms} // [] }) {
+                if ($transform eq 'Pod5') {
+                    require Pod::Elemental::Transformer::Pod5;
+                    Pod::Elemental::Transformer::Pod5->new->transform_node($doc);
+                } elsif ($transform eq 'Nester') {
+                    require Pod::Elemental::Transformer::Nester;
+                    my $t = Pod::Elemental::Transformer::Nester->new({
+                        top_selector      => Pod::Elemental::Selectors::s_command('head1'),
+                        content_selectors => [
+                            Pod::Elemental::Selectors::s_command([ qw(head2 head3 head4) ]),
+                            Pod::Elemental::Selectors::s_flat(),
+                        ],
+                    });
+                    $t->transform_node($doc);
+                } else {
+                    die "Unknown transform '$transform'";
+                }
+            }
 
           PATCH: {
                 last if @patch_handles;
