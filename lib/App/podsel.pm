@@ -6,6 +6,7 @@ package App::podsel;
 use 5.010001;
 use strict;
 use warnings;
+use Log::ger;
 
 use App::CSelUtils;
 use Module::Patch qw(patch_package);
@@ -46,7 +47,7 @@ $SPEC{podsel} = {
             schema => [
                 'array*', {
                     of=>['str*', in=>['Pod5','Nester']],
-                    #'x.perl.coerce_rules' => ['From_str::comma_sep'], # BUG: Perinci::Sub::GetArgs::Argv decides this must be --transform + --transforms-json anyway?
+                    #'x.perl.coerce_rules' => ['From_str::comma_sep'],
                 }],
             description => <<'_',
 
@@ -66,9 +67,29 @@ Equivalent to this:
 
 * Nester
 
-Equivalent to this
+Equivalent to this:
 
-    my $nester = Pod::Elemental::Transformer::Nester->new({
+    my $nester;
+
+    $nester = Pod::Elemental::Transformer::Nester->new({
+        top_selector      => Pod::Elemental::Selectors::s_command('head3'),
+        content_selectors => [
+            Pod::Elemental::Selectors::s_command([ qw(head4) ]),
+            Pod::Elemental::Selectors::s_flat(),
+        ],
+    });
+    $nester->new->transform_node($tree);
+
+    $nester = Pod::Elemental::Transformer::Nester->new({
+        top_selector      => Pod::Elemental::Selectors::s_command('head2'),
+        content_selectors => [
+            Pod::Elemental::Selectors::s_command([ qw(head3 head4) ]),
+            Pod::Elemental::Selectors::s_flat(),
+        ],
+    });
+    $nester->new->transform_node($tree);
+
+    $nester = Pod::Elemental::Transformer::Nester->new({
         top_selector      => Pod::Elemental::Selectors::s_command('head1'),
         content_selectors => [
             Pod::Elemental::Selectors::s_command([ qw(head2 head3 head4) ]),
@@ -102,19 +123,44 @@ sub podsel {
 
             for my $transform (@{ $podsel_args{transforms} // [] }) {
                 if ($transform eq 'Pod5') {
+                    log_trace "Transforming POD with Pod5 ...";
                     require Pod::Elemental::Transformer::Pod5;
                     Pod::Elemental::Transformer::Pod5->new->transform_node($doc);
                 } elsif ($transform eq 'Nester') {
+                    log_trace "Transforming POD with Nester ...";
                     require Pod::Elemental::Transformer::Nester;
                     require Pod::Elemental::Selectors;
-                    my $t = Pod::Elemental::Transformer::Nester->new({
-                        top_selector      => Pod::Elemental::Selectors::s_command('head1'),
+                    my $t;
+
+                    $t = Pod::Elemental::Transformer::Nester->new({
+                        top_selector      => Pod::Elemental::Selectors::s_command('head3'),
                         content_selectors => [
-                            Pod::Elemental::Selectors::s_command([ qw(head2 head3 head4) ]),
+                            Pod::Elemental::Selectors::s_command([ qw(head4) ]),
                             Pod::Elemental::Selectors::s_flat(),
                         ],
                     });
                     $t->transform_node($doc);
+
+                    $t = Pod::Elemental::Transformer::Nester->new({
+                        top_selector      => Pod::Elemental::Selectors::s_command('head2'),
+                        content_selectors => [
+                            Pod::Elemental::Selectors::s_command([ qw(head3 head4) ]),
+                            Pod::Elemental::Selectors::s_flat(),
+                        ],
+                    });
+                    $t->transform_node($doc);
+
+                    if (1) {
+                        $t = Pod::Elemental::Transformer::Nester->new({
+                            top_selector      => Pod::Elemental::Selectors::s_command('head1'),
+                            content_selectors => [
+                                Pod::Elemental::Selectors::s_command([ qw(head2 head3 head4) ]),
+                                Pod::Elemental::Selectors::s_flat(),
+                            ],
+                        });
+                        $t->transform_node($doc);
+                    }
+
                 } else {
                     die "Unknown transform '$transform'";
                 }

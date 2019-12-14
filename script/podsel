@@ -1,6 +1,8 @@
 #!perl
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -13,6 +15,7 @@ Perinci::CmdLine::Any->new(
     url => '/App/podsel/podsel',
     read_config => 0,
     read_env => 0,
+    log => 1,
 )->run;
 
 # ABSTRACT:
