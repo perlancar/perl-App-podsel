@@ -49,13 +49,14 @@ $SPEC{podsel} = {
                     of=>['str*', in=>['Pod5','Nester']],
                     #'x.perl.coerce_rules' => ['From_str::comma_sep'],
                 }],
+            cmdline_aliases => {t=>{}},
             description => <<'_',
 
 By default, the "stock" Pod::Elemental parser will be generic and not very
 helpful in parsing your typical POD (Perl 5 variant) documents. You usually want
 to add:
 
-    --transform Pod5 --transform Nester
+    -t Pod5 -t Nester
 
 The following are available transforms:
 
@@ -180,6 +181,7 @@ sub podsel {
         csel_opts => {
             class_prefixes=>[
                 'Pod::Elemental::Element::Generic',
+                'Pod::Elemental::Element::Pod5',
                 'Pod::Elemental::Element',
                 'Pod::Elemental',
             ]},

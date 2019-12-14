@@ -23,18 +23,14 @@ Perinci::CmdLine::Any->new(
 
 =head1 SYNOPSIS
 
-To select the commands:
+To select the head1 sections:
 
- % podsel foo.pod '.Command'
-
-To print only the head* commands:
-
- % podsel foo.pod '.Command[command =~ "head"]'
+ % podsel foo.pod -t Pod5 -t Nested '.Nested[command=head1]'
 
 To dump Pod document tree (C<--root> select the root node, C<--dump> dumps the
 content):
 
- % podsel foo.pod --root --dump
+ % podsel foo.pod -t Pod5 -t Nested --root --dump
 
 
 =head1 DESCRIPTION
@@ -44,8 +40,9 @@ constructed from a Perl POD document.
 
 About the tree: the root node is Pod::Elemental::Document object. The other
 nodes are Pod::Elemental::Element::* nodes. This utility allows you to omit the
-C<Pod::Elemental::Element::Generic>, C<Pod::Elemental::Element> or
-C<Pod::Elemental::> prefix, so to select a command you can use:
+C<Pod::Elemental::Element::Generic>, C<Pod::Elemental::Element::Pod5>,
+C<Pod::Elemental::Element> or C<Pod::Elemental::> prefix, so to select a command
+you can use:
 
  .Element::Generic::Command
 
