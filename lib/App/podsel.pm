@@ -106,6 +106,7 @@ sub podsel {
                     Pod::Elemental::Transformer::Pod5->new->transform_node($doc);
                 } elsif ($transform eq 'Nester') {
                     require Pod::Elemental::Transformer::Nester;
+                    require Pod::Elemental::Selectors;
                     my $t = Pod::Elemental::Transformer::Nester->new({
                         top_selector      => Pod::Elemental::Selectors::s_command('head1'),
                         content_selectors => [
