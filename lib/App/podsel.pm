@@ -176,8 +176,7 @@ List of head commands in POD of <pm:List::Util>:
 
     ...
 
-Only show head2 commands under certain head1 commands in POD of <pm:List::Util>.
-Basically we want to list key-functions and not list-reduction functions:
+List only key/value pair list functions and not list-reduction ones:
 
     % podsel -5 `pmpath List::Util` 'Nested[command=head1][content =~ /pair/i] Nested[command=head2]' --print-method content
     pairs
