@@ -1,6 +1,8 @@
 package App::podsel;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -49,7 +51,10 @@ $SPEC{podsel} = {
                     of=>['str*', in=>['Pod5','Nester']],
                     #'x.perl.coerce_rules' => ['From_str::comma_sep'],
                 }],
-            cmdline_aliases => {t=>{}},
+            cmdline_aliases => {
+                t => {},
+                5 => {is_flag=>1, summary=>'Shortcut for -t Pod5 -t Nester', code=>sub { push @{ $_[0]{transforms} }, 'Pod5', 'Nester' }},
+            },
             description => <<'_',
 
 By default, the "stock" Pod::Elemental parser will be generic and not very
@@ -57,6 +62,8 @@ helpful in parsing your typical POD (Perl 5 variant) documents. You usually want
 to add:
 
     -t Pod5 -t Nester
+
+or -5 for short, which is equivalent to the above.
 
 The following are available transforms:
 
