@@ -57,13 +57,16 @@ $SPEC{podsel} = {
             },
             description => <<'_',
 
-By default, the "stock" Pod::Elemental parser will be generic and not very
-helpful in parsing your typical POD (Perl 5 variant) documents. You usually want
-to add:
+**TRANSFORMS**
+
+First of all, by default, the "stock" Pod::Elemental parser will be generic and
+often not very helpful in parsing your typical POD (Perl 5 variant) documents.
+You often want to add:
 
     -t Pod5 -t Nester
 
-or -5 for short, which is equivalent to the above.
+or -5 for short, which is equivalent to the above. Except in some simple cases.
+See examples below.
 
 The following are available transforms:
 
@@ -105,6 +108,85 @@ Equivalent to this:
         ],
     });
     $nester->new->transform_node($tree);
+
+**EXAMPLES**
+
+Note: <prog:pmpath> is a CLI utility that returns the path of a locally
+installed Perl module. It's distributed in <pm:App::PMUtils> distribution.
+
+Select all head1 commands (only print the command lines and not the content):
+
+    % podsel `pmpath strict` 'Command[command=head1]'
+    =head1 NAME
+
+    =head1 SYNOPSIS
+
+    =head1 DESCRIPTION
+
+    =head1 HISTORY
+
+Select all head1 commands that contain "SYN" in them (only print the command
+lines and not the content):
+
+    % podsel `pmpath strict` 'Command[command=head1][content =~ /synopsis/i]'
+    =head1 SYNOPSIS
+
+Select all head1 commands that contain "SYN" in them (but now also print the
+content; note now the use of the `Nested` class selector and the `-5` flag to
+create a nested document tree instead of a flat one):
+
+    % podsel -5 `pmpath strict` 'Nested[command=head1][content =~ /synopsis/i]'
+    =head1 SYNOPSIS
+
+        use strict;
+
+        use strict "vars";
+        use strict "refs";
+        use strict "subs";
+
+        use strict;
+        no strict "vars";
+
+List of head commands in POD of <pm:List::Util>:
+
+    % podsel `pmpath List::Util` 'Command[command =~ /head/]'
+    =head1 NAME
+
+    =head1 SYNOPSIS
+
+    =head1 DESCRIPTION
+
+    =head1 LIST-REDUCTION FUNCTIONS
+
+    =head2 reduce
+
+    =head2 reductions
+
+    ...
+
+    =head1 KEY/VALUE PAIR LIST FUNCTIONS
+
+    =head2 pairs
+
+    =head2 unpairs
+
+    =head2 pairkeys
+
+    =head2 pairvalues
+
+    ...
+
+Only show head2 commands under certain head1 commands in POD of <pm:List::Util>.
+Basically we want to list key-functions and not list-reduction functions:
+
+    % podsel -5 `pmpath List::Util` 'Nested[command=head1][content =~ /pair/i] Nested[command=head2]' --print-method content
+    pairs
+    unpairs
+    pairkeys
+    pairvalues
+    pairgrep
+    pairfirst
+    pairmap
 
 _
         },
